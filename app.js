@@ -1,6 +1,6 @@
 import * as config from './config.js';
 import { generateDummyData, getDummyUser } from './dummyData.js';
-import leaflet from 'leaflet'; // Import Leaflet
+import * as L from 'leaflet'; // Import Leaflet
 
 // --- DOM Elements ---
 const navLinks = document.querySelectorAll('.nav-link');
@@ -26,7 +26,6 @@ const timebankFilterButton = document.getElementById('service-filter-button');
 const timebankCategoryFilter = document.getElementById('service-category-filter');
 const timebankSearchInput = document.getElementById('service-search-input');
 
-
 // --- State ---
 let currentSection = 'marketplace'; // Default section
 let mapInstance = null; // To hold the Leaflet map instance
@@ -35,7 +34,6 @@ let services = []; // Holds all timebank services
 let suggestions = []; // Holds donation/sharing suggestions
 let user = getDummyUser(); // Get current user info
 let userLocation = null; // Will be determined later
-
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -90,34 +88,33 @@ function setupEventListeners() {
         });
     });
 
-     // Form type change
-     resourceTypeSelect.addEventListener('change', handleResourceTypeChange);
+    // Form type change
+    resourceTypeSelect.addEventListener('change', handleResourceTypeChange);
 
-     // Add resource form submission
-     addResourceForm.addEventListener('submit', handleAddResource);
+    // Add resource form submission
+    addResourceForm.addEventListener('submit', handleAddResource);
 
-     // Marketplace filters
+    // Marketplace filters
     marketplaceFilterButton.addEventListener('click', filterMarketplace);
 
     // Timebank filters
     timebankFilterButton.addEventListener('click', filterTimebank);
 
-     // Delegate event listeners for dynamically added buttons
+    // Delegate event listeners for dynamically added buttons
     document.body.addEventListener('click', (event) => {
         if (event.target.matches('.claim-button')) {
             handleClaimResource(event.target.dataset.id);
         } else if (event.target.matches('.request-service-button')) {
             handleRequestService(event.target.dataset.id);
         } else if (event.target.matches('.offer-service-button')) {
-             navigateToSection('add-resource');
-             resourceTypeSelect.value = 'service';
-             handleResourceTypeChange(); // Update form fields visibility
+            navigateToSection('add-resource');
+            resourceTypeSelect.value = 'service';
+            handleResourceTypeChange(); // Update form fields visibility
         } else if (event.target.matches('.edit-profile-button')) {
             handleEditProfile(); // Placeholder for editing profile
         }
     });
 }
-
 
 // --- Data Loading and Rendering ---
 function loadInitialData() {
@@ -160,7 +157,7 @@ function renderMarketplace(itemsToRender) {
 function renderTimebank(servicesToRender) {
     console.log("Rendering timebank...");
     timebankList.innerHTML = ''; // Clear existing content
-     if (servicesToRender.length === 0) {
+    if (servicesToRender.length === 0) {
         timebankList.innerHTML = '<div class="resource-item placeholder">No services found matching your criteria.</div>';
         return;
     }
@@ -171,10 +168,10 @@ function renderTimebank(servicesToRender) {
             <h3>${service.title}</h3>
             <p>${service.description}</p>
             <p><strong>Category:</strong> <span class="category">${service.category}</span></p>
-             <p><strong>Estimated Time:</strong> ${service.hours} hour(s)</p>
+            <p><strong>Estimated Time:</strong> ${service.hours} hour(s)</p>
             <p><strong>Location:</strong> ${service.location}</p>
-             <p><strong>Offered by:</strong> ${service.user} ${service.user === user.username ? '(You)' : ''}</p>
-             ${service.user !== user.username ? `<button class="request-service-button" data-id="${service.id}">Request Service (${service.hours}h)</button>` : '<p><em>This is your listing.</em></p>'}
+            <p><strong>Offered by:</strong> ${service.user} ${service.user === user.username ? '(You)' : ''}</p>
+            ${service.user !== user.username ? `<button class="request-service-button" data-id="${service.id}">Request Service (${service.hours}h)</button>` : '<p><em>This is your listing.</em></p>'}
         `;
         timebankList.appendChild(div);
     });
@@ -182,29 +179,28 @@ function renderTimebank(servicesToRender) {
 }
 
 function renderSuggestions(suggestionsToRender) {
-     console.log("Rendering suggestions...");
+    console.log("Rendering suggestions...");
     suggestionList.innerHTML = ''; // Clear existing content
     if (!suggestionsToRender || suggestionsToRender.length === 0) {
         suggestionList.innerHTML = '<div class="suggestion-item placeholder">Could not find nearby suggestions. Ensure location services are enabled.</div>';
         return;
     }
-     // Clear previous markers
+    // Clear previous markers
     if (mapInstance) {
         mapInstance.eachLayer(layer => {
-            if (layer instanceof leaflet.Marker) {
+            if (layer instanceof L.Marker) {
                 mapInstance.removeLayer(layer);
             }
         });
         // Keep the base tile layer
-         mapInstance.eachLayer(layer => {
-             if (!(layer instanceof leaflet.TileLayer)) {
-                 if (layer.options && layer.options.pane === 'markerPane') { // Check if it's a marker
+        mapInstance.eachLayer(layer => {
+            if (!(layer instanceof L.TileLayer)) {
+                if (layer.options && layer.options.pane === 'markerPane') { // Check if it's a marker
                     mapInstance.removeLayer(layer);
-                 }
-             }
-         });
+                }
+            }
+        });
     }
-
 
     suggestionsToRender.forEach(suggestion => {
         const div = document.createElement('div');
@@ -218,30 +214,29 @@ function renderSuggestions(suggestionsToRender) {
         `;
         suggestionList.appendChild(div);
 
-         // Add marker to map
+        // Add marker to map
         if (mapInstance && suggestion.lat && suggestion.lng) {
-            const marker = leaflet.marker([suggestion.lat, suggestion.lng]).addTo(mapInstance);
+            const marker = L.marker([suggestion.lat, suggestion.lng]).addTo(mapInstance);
             marker.bindPopup(`<b>${suggestion.name}</b><br>${suggestion.type}<br>${suggestion.address}`);
         }
     });
 
-     // Add user location marker if available
+    // Add user location marker if available
     if (mapInstance && userLocation) {
-         leaflet.marker(userLocation, { icon: createUserIcon() })
+        L.marker(userLocation, { icon: createUserIcon() })
             .addTo(mapInstance)
             .bindPopup("Your approximate location")
             .openPopup();
-         mapInstance.setView(userLocation, config.MAP_INITIAL_ZOOM); // Center map on user
+        mapInstance.setView(userLocation, config.MAP_INITIAL_ZOOM); // Center map on user
     } else if (mapInstance && suggestionsToRender.length > 0) {
         // If no user location, center on the first suggestion
-         mapInstance.setView([suggestionsToRender[0].lat, suggestionsToRender[0].lng], config.MAP_INITIAL_ZOOM - 2);
+        mapInstance.setView([suggestionsToRender[0].lat, suggestionsToRender[0].lng], config.MAP_INITIAL_ZOOM - 2);
     }
-
 }
 
 function createUserIcon() {
     // Simple blue circle marker for user location
-    return leaflet.divIcon({
+    return L.divIcon({
         html: '<svg viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="#3498db" stroke="white" stroke-width="5"/></svg>',
         className: 'user-location-icon',
         iconSize: [20, 20],
@@ -274,7 +269,7 @@ function renderMyListings() {
     });
 
     userServices.forEach(service => {
-         const div = document.createElement('div');
+        const div = document.createElement('div');
         div.className = 'resource-item';
         div.innerHTML = `
             <h3>${service.title} (Service)</h3>
@@ -300,28 +295,27 @@ function renderMyTransactions() {
         { id: 't3', type: 'claimed', description: 'Claimed "Used Books" from UserZ', date: '2024-07-15' },
     ];
 
-     if (transactions.length === 0) {
+    if (transactions.length === 0) {
         myTransactionsContainer.innerHTML = '<div class="transaction-item placeholder">No transactions recorded yet.</div>';
         return;
     }
 
     transactions.forEach(tx => {
-         const div = document.createElement('div');
-         div.className = 'transaction-item';
-         let details = '';
+        const div = document.createElement('div');
+        div.className = 'transaction-item';
+        let details = '';
         if (tx.type === 'received' || tx.type === 'provided') {
             details = `<strong>${tx.type === 'received' ? 'Received' : 'Provided'} Service:</strong> ${tx.description} (${tx.hours} hours)`;
         } else if (tx.type === 'claimed') {
-             details = `<strong>Claimed Item:</strong> ${tx.description}`;
+            details = `<strong>Claimed Item:</strong> ${tx.description}`;
         }
-         div.innerHTML = `
-             <p>${details}</p>
-             <p><em>Date: ${tx.date}</em></p>
-         `;
-         myTransactionsContainer.appendChild(div);
+        div.innerHTML = `
+            <p>${details}</p>
+            <p><em>Date: ${tx.date}</em></p>
+        `;
+        myTransactionsContainer.appendChild(div);
     });
 }
-
 
 // --- User Profile ---
 function updateUserProfile() {
@@ -336,8 +330,8 @@ function updateTimeBalanceDisplay() {
 }
 
 function handleEditProfile() {
-     alert("Profile editing functionality not yet implemented.");
-     // Future: Open a modal or navigate to an edit page
+    alert("Profile editing functionality not yet implemented.");
+    // Future: Open a modal or navigate to an edit page
 }
 
 // --- Map and Location ---
@@ -347,17 +341,17 @@ function initializeMap() {
         console.error("Map element not found.");
         return;
     }
-     try {
-        mapInstance = leaflet.map(mapElement).setView(config.MAP_DEFAULT_CENTER, config.MAP_DEFAULT_ZOOM);
-        leaflet.tileLayer(config.MAP_TILE_LAYER_URL, {
+    try {
+        mapInstance = L.map(mapElement).setView(config.MAP_DEFAULT_CENTER, config.MAP_DEFAULT_ZOOM);
+        L.tileLayer(config.MAP_TILE_LAYER_URL, {
             maxZoom: 19,
             attribution: config.MAP_ATTRIBUTION
         }).addTo(mapInstance);
         console.log("Map initialized successfully.");
-     } catch (error) {
-         console.error("Error initializing Leaflet map:", error);
-         mapElement.innerHTML = "<p>Error loading map. Please try refreshing the page.</p>";
-     }
+    } catch (error) {
+        console.error("Error initializing Leaflet map:", error);
+        mapElement.innerHTML = "<p>Error loading map. Please try refreshing the page.</p>";
+    }
 }
 
 function requestLocationAndLoadSuggestions() {
@@ -374,11 +368,11 @@ function requestLocationAndLoadSuggestions() {
             userLocation = [position.coords.latitude, position.coords.longitude];
             console.log("Location obtained:", userLocation);
             // Calculate distances (simple Euclidean for now, ideally Haversine)
-             suggestions.forEach(s => {
-                if(s.lat && s.lng) {
+            suggestions.forEach(s => {
+                if (s.lat && s.lng) {
                     s.distance = calculateDistance(userLocation[0], userLocation[1], s.lat, s.lng);
                 }
-             });
+            });
             // Sort suggestions by distance
             suggestions.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
             renderSuggestions(suggestions);
@@ -387,7 +381,7 @@ function requestLocationAndLoadSuggestions() {
             console.warn(`Error getting location: ${error.message}`);
             alert(`Could not get your location: ${error.message}. Showing default suggestions.`);
             renderSuggestions(suggestions); // Render default suggestions if location fails
-             if (mapInstance) mapInstance.setView(config.MAP_DEFAULT_CENTER, config.MAP_DEFAULT_ZOOM); // Reset map view
+            if (mapInstance) mapInstance.setView(config.MAP_DEFAULT_CENTER, config.MAP_DEFAULT_ZOOM); // Reset map view
         }
     );
 }
@@ -411,27 +405,25 @@ function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
 
-
 // --- Resource/Service Handling ---
 function handleResourceTypeChange() {
-     const selectedType = resourceTypeSelect.value;
-     if (selectedType === 'item') {
-         itemFields.style.display = 'block';
-         serviceFields.style.display = 'none';
-         // Make item category required, service fields not required
-         document.getElementById('item-category').required = true;
-         document.getElementById('service-category').required = false;
-         document.getElementById('service-hours').required = false;
-     } else { // service
-         itemFields.style.display = 'none';
-         serviceFields.style.display = 'block';
-         // Make service fields required, item category not required
-          document.getElementById('item-category').required = false;
-         document.getElementById('service-category').required = true;
-         document.getElementById('service-hours').required = true;
-     }
+    const selectedType = resourceTypeSelect.value;
+    if (selectedType === 'item') {
+        itemFields.style.display = 'block';
+        serviceFields.style.display = 'none';
+        // Make item category required, service fields not required
+        document.getElementById('item-category').required = true;
+        document.getElementById('service-category').required = false;
+        document.getElementById('service-hours').required = false;
+    } else { // service
+        itemFields.style.display = 'none';
+        serviceFields.style.display = 'block';
+        // Make service fields required, item category not required
+        document.getElementById('item-category').required = false;
+        document.getElementById('service-category').required = true;
+        document.getElementById('service-hours').required = true;
+    }
 }
-
 
 function handleAddResource(event) {
     event.preventDefault();
@@ -482,9 +474,9 @@ function handleClaimResource(itemId) {
             alert("You cannot claim your own item.");
             return;
         }
-         // Basic confirmation
+        // Basic confirmation
         const confirmation = confirm(`Are you sure you want to claim "${item.title}"?`);
-        if(confirmation) {
+        if (confirmation) {
             console.log(`Claiming item ${itemId}: ${item.title}`);
             alert(`You claimed "${item.title}"! (Functionality placeholder)`);
             // In a real app: Update database, notify owner, remove/mark item as claimed
@@ -501,48 +493,47 @@ function handleClaimResource(itemId) {
 }
 
 function handleRequestService(serviceId) {
-     // Find the service
+    // Find the service
     const serviceIndex = services.findIndex(service => service.id === serviceId);
-     if (serviceIndex > -1) {
-         const service = services[serviceIndex];
-         if (service.user === user.username) {
+    if (serviceIndex > -1) {
+        const service = services[serviceIndex];
+        if (service.user === user.username) {
             alert("You cannot request your own service.");
             return;
-         }
+        }
 
-         // Check if user has enough time balance
-         if (user.timeBalance < service.hours) {
-             alert(`You do not have enough time credits (${user.timeBalance}h) to request this service (${service.hours}h).`);
-             return;
-         }
+        // Check if user has enough time balance
+        if (user.timeBalance < service.hours) {
+            alert(`You do not have enough time credits (${user.timeBalance}h) to request this service (${service.hours}h).`);
+            return;
+        }
 
-         // Basic confirmation
+        // Basic confirmation
         const confirmation = confirm(`Request "${service.title}" for ${service.hours} hours? This will deduct ${service.hours} hours from your balance.`);
-        if(confirmation) {
-             console.log(`Requesting service ${serviceId}: ${service.title}`);
+        if (confirmation) {
+            console.log(`Requesting service ${serviceId}: ${service.title}`);
 
-             // Simulate transaction
-             user.timeBalance -= service.hours; // Deduct hours from requester
-             // Ideally, credit the provider, handle pending state etc.
-             console.log(`User time balance updated: ${user.timeBalance}`);
+            // Simulate transaction
+            user.timeBalance -= service.hours; // Deduct hours from requester
+            // Ideally, credit the provider, handle pending state etc.
+            console.log(`User time balance updated: ${user.timeBalance}`);
 
-             alert(`Service "${service.title}" requested! ${service.hours} hours deducted. (Functionality placeholder)`);
+            alert(`Service "${service.title}" requested! ${service.hours} hours deducted. (Functionality placeholder)`);
             // In a real app: Create transaction record, notify provider, update balances in DB
 
             // Temporary: remove service from list for demo purposes
-             // services.splice(serviceIndex, 1);
-             // filterTimebank(); // Re-render timebank
+            // services.splice(serviceIndex, 1);
+            // filterTimebank(); // Re-render timebank
 
-             updateTimeBalanceDisplay(); // Update displayed balance
-             renderMyTransactions(); // Update transaction history
-         }
+            updateTimeBalanceDisplay(); // Update displayed balance
+            renderMyTransactions(); // Update transaction history
+        }
 
     } else {
-         console.error(`Service with ID ${serviceId} not found for requesting.`);
-         alert("Could not find the service to request.");
-     }
+        console.error(`Service with ID ${serviceId} not found for requesting.`);
+        alert("Could not find the service to request.");
+    }
 }
-
 
 // --- Filtering ---
 function filterMarketplace() {
@@ -552,9 +543,9 @@ function filterMarketplace() {
     const filteredResources = resources.filter(item => {
         const categoryMatch = category === 'all' || item.category === category;
         const searchMatch = !searchTerm ||
-                            item.title.toLowerCase().includes(searchTerm) ||
-                            item.description.toLowerCase().includes(searchTerm) ||
-                            item.user.toLowerCase().includes(searchTerm);
+            item.title.toLowerCase().includes(searchTerm) ||
+            item.description.toLowerCase().includes(searchTerm) ||
+            item.user.toLowerCase().includes(searchTerm);
         return categoryMatch && searchMatch;
     });
 
@@ -562,18 +553,17 @@ function filterMarketplace() {
 }
 
 function filterTimebank() {
-     const category = timebankCategoryFilter.value;
+    const category = timebankCategoryFilter.value;
     const searchTerm = timebankSearchInput.value.toLowerCase();
 
     const filteredServices = services.filter(service => {
         const categoryMatch = category === 'all' || service.category === category;
         const searchMatch = !searchTerm ||
-                            service.title.toLowerCase().includes(searchTerm) ||
-                            service.description.toLowerCase().includes(searchTerm) ||
-                            service.user.toLowerCase().includes(searchTerm);
+            service.title.toLowerCase().includes(searchTerm) ||
+            service.description.toLowerCase().includes(searchTerm) ||
+            service.user.toLowerCase().includes(searchTerm);
         return categoryMatch && searchMatch;
     });
 
     renderTimebank(filteredServices);
 }
-
