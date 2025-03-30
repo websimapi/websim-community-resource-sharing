@@ -1,0 +1,299 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #3a5a40;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+nav a {
+    color: #dad7cd;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+nav a:hover, nav a.active {
+    background-color: #588157;
+    color: white;
+}
+
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.content-section {
+    display: none; /* Hide sections by default */
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.content-section.active {
+    display: block; /* Show active section */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+h2 {
+    color: #3a5a40;
+    border-bottom: 2px solid #a3b18a;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-controls {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.filter-controls label {
+    font-weight: bold;
+}
+
+.filter-controls select,
+.filter-controls input[type="text"],
+.filter-controls button {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.filter-controls input[type="text"] {
+    flex-grow: 1; /* Allow search input to take more space */
+    min-width: 150px;
+}
+
+.filter-controls button {
+    background-color: #588157;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.filter-controls button:hover {
+    background-color: #3a5a40;
+}
+
+
+.resource-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.resource-item, .suggestion-item, .transaction-item {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.resource-item:hover, .suggestion-item:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.resource-item h3, .suggestion-item h3 {
+    margin-top: 0;
+    color: #588157;
+    font-size: 1.2em;
+}
+
+.resource-item p, .suggestion-item p, .transaction-item p {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.resource-item .category, .suggestion-item .type {
+    display: inline-block;
+    background-color: #a3b18a;
+    color: #333;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.8em;
+    margin-bottom: 0.5rem;
+}
+
+.resource-item button, .timebank-balance button, #add-resource-form button, #edit-profile-button {
+    background-color: #588157;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 0.5rem;
+    font-size: 0.9em;
+}
+
+.resource-item button:hover, .timebank-balance button:hover, #add-resource-form button:hover, #edit-profile-button:hover {
+    background-color: #3a5a40;
+}
+
+.placeholder {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    grid-column: 1 / -1; /* Span across all columns */
+}
+
+/* Timebank specific */
+.timebank-balance {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #e8f5e9; /* Light green */
+    border-radius: 5px;
+    text-align: center;
+    border: 1px solid #a3b18a;
+}
+.timebank-balance h3{
+    color: #3a5a40;
+    margin: 0 0 0.5rem 0;
+}
+.timebank-balance span {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Suggestions Map */
+#map {
+    height: 400px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* Add Resource Form */
+#add-resource-form {
+    display: grid;
+    gap: 1rem;
+    max-width: 600px; /* Limit form width */
+    margin: 0 auto; /* Center form */
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#add-resource-form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+#add-resource-form input[type="text"],
+#add-resource-form textarea,
+#add-resource-form select,
+#add-resource-form input[type="number"] {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+}
+
+#add-resource-form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Profile Section */
+#user-info {
+    background-color: #e8f5e9;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #a3b18a;
+}
+#user-info p {
+    margin: 0.5rem 0;
+}
+
+#my-listings h3, #my-transactions h3 {
+     margin-top: 2rem;
+     margin-bottom: 1rem;
+     color: #3a5a40;
+}
+
+.transaction-item {
+    background-color: #f0f0f0; /* Slightly different background */
+}
+
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #dad7cd;
+    color: #333;
+    font-size: 0.9em;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header nav ul {
+        flex-direction: column;
+        gap: 5px;
+    }
+    header nav a {
+        display: block;
+        text-align: center;
+    }
+    main {
+        padding: 1rem;
+        margin: 1rem;
+    }
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+     .filter-controls input[type="text"] {
+        width: auto; /* Reset width */
+    }
+    .resource-list {
+        grid-template-columns: 1fr; /* Stack items on smaller screens */
+    }
+}
+
